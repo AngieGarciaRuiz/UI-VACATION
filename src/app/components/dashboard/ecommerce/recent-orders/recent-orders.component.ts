@@ -6,23 +6,40 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { RouterLink } from '@angular/router';
-
+import { EmpleadoResponseDTO } from '../../../../models/EmpleadoResponseDTO';
+import { EmpleadoService } from '../../../../service/empleado/empleado-servicce.service';
+  
 @Component({
     selector: 'app-recent-orders',
     imports: [RouterLink, MatCardModule, MatButtonModule, MatMenuModule, MatTableModule, MatPaginatorModule, NgIf],
     templateUrl: './recent-orders.component.html',
+    standalone:true,
     styleUrls: ['./recent-orders.component.scss']
 })
 export class RecentOrdersComponent implements AfterViewInit {
-
-    displayedColumns: string[] = ['position', 'product', 'customer', 'price', 'vendor', 'date', 'status', 'rating'];
-    dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
-
+    empleados: EmpleadoResponseDTO[] = [];
+    dataSource = new MatTableDataSource<EmpleadoResponseDTO>(this.empleados);
+    displayedColumns: string[] = ['id', 'nombre', 'apellidoPaterno', 'apellidoMaterno', 'email', 'telefono', 'sueldo', 'estado'];
+  
     @ViewChild(MatPaginator) paginator: MatPaginator;
-
-    ngAfterViewInit() {
-        this.dataSource.paginator = this.paginator;
+  
+    constructor(private empleadoService: EmpleadoService) {}
+  
+    ngOnInit(): void {
+      this.obtenerEmpleados();
     }
+  
+    obtenerEmpleados(): void {
+      this.empleadoService.obtenerEmpleados().subscribe(data => {
+        this.empleados = data;
+        this.dataSource.data = this.empleados;
+      });
+    }
+  
+    ngAfterViewInit() {
+      this.dataSource.paginator = this.paginator;
+    }
+  
 
     pending = true;
     outOfStock = true;
